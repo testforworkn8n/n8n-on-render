@@ -1,22 +1,25 @@
-# Use official Debian-based n8n image
-FROM n8nio/n8n:1.74.0
+# Use the official n8n image (Alpine-based)
+FROM n8nio/n8n:latest
 
-# Switch to root for installing dependencies
+# Switch to root to install packages
 USER root
 
-# Update and install tools (bash, git, curl)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends bash git curl && \
-    rm -rf /var/lib/apt/lists/*
+# Install required tools for backup (git, bash, curl)
+RUN apk add --no-cache bash git curl
 
-# Set work directory
-WORKDIR /data
+# Create a backup directory
+RUN mkdir -p /data/backup
 
-# Copy optional backup script (if exists)
+# Copy the backup script to the image
 COPY backup.sh /data/backup.sh
-RUN chmod +x /data/backup.sh || true
 
-# Expose n8n default port
+# Give execute permissions
+RUN chmod +x /data/backup.sh
+
+# Switch back to the default n8n user
+USER node
+
+# Expose port
 EXPOSE 5678
 
 # Start n8n
