@@ -1,14 +1,13 @@
 FROM n8nio/n8n:latest
 
-# Set working directory
 WORKDIR /data
 
-# Copy environment variables (optional)
+# Copy environment variables
 ENV N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
 
-# Expose the default n8n port
-EXPOSE 5678
+# Copy the backup script
+COPY backup.sh /backup.sh
+RUN chmod +x /backup.sh
 
-# Start n8n server
-ENTRYPOINT ["tini", "--"]
-CMD ["n8n", "start"]
+# Start using the script instead of n8n directly
+CMD ["/backup.sh"]
