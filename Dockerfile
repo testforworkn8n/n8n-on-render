@@ -1,11 +1,18 @@
+# Use the official n8n image
 FROM n8nio/n8n:latest
 
-# Show which Linux distribution the image is based on
-RUN echo "===== OS release info =====" && cat /etc/os-release || true
-RUN echo "===== Installed package manager check =====" \
- && (command -v apt-get && echo "apt-get found (Debian/Ubuntu based)") \
- || (command -v apk && echo "apk found (Alpine based)") \
- || (echo "No apt-get or apk found — custom image")
+# Set working directory
+WORKDIR /data
 
-# Default startup (so Render still runs n8n)
-CMD ["n8n", "start"]
+# Copy your backup script into the container
+COPY backup.sh /backup.sh
+
+# Give execute permission (Alpine requires busybox sh syntax)
+RUN chmod +x /backup.sh
+
+# Install bash (Alpine doesn’t include it by default)
+RUN apk add --no-cache bash
+
+# Optional: run your backup script on startup before n8n
+# Replace this line if you want automatic backup logic
+CMD ["bash", "-c", "/backup.sh & n8n start"]
