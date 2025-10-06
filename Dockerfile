@@ -1,19 +1,24 @@
-# Debian variant (has /bin/sh and apt-get)
-FROM n8nio/n8n:1.74.0-debian
+# Use the official Alpine-based image
+FROM n8nio/n8n:latest
 
-# Install tools
+# Switch to root to install packages
 USER root
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends bash git && \
-    rm -rf /var/lib/apt/lists/*
 
+# Install bash, git, and make sure shell works (Alpine uses apk)
+RUN apk add --no-cache bash git
+
+# Set working directory
 WORKDIR /data
+
+# Copy your backup script and set execute permissions
 COPY backup.sh /backup.sh
 RUN chmod +x /backup.sh
 
-# Run as node again
+# Switch back to non-root user
 USER node
+
+# Expose n8n default port
 EXPOSE 5678
 
-# Start backup loop + n8n
+# Start both n8n and the backup script in parallel
 CMD ["bash", "-c", "/backup.sh & n8n start"]
