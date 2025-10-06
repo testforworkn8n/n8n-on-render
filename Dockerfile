@@ -1,10 +1,10 @@
-# Use the official n8n image (already Debian-based)
-FROM n8nio/n8n:latest
+# Use a Debian-based n8n image so apt-get exists
+FROM n8nio/n8n:1.74.0-debian
 
-# Switch to root so we can install additional tools
+# Switch to root to install additional tools
 USER root
 
-# Update and install bash + git
+# Install bash and git
 RUN apt-get update && \
     apt-get install -y --no-install-recommends bash git && \
     rm -rf /var/lib/apt/lists/*
@@ -16,10 +16,10 @@ WORKDIR /data
 COPY backup.sh /backup.sh
 RUN chmod +x /backup.sh
 
-# Switch back to non-root user
+# Switch back to n8n user
 USER node
 
-# Expose n8n’s default port
+# Expose default port
 EXPOSE 5678
 
 # Start n8n
