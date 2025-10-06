@@ -1,9 +1,12 @@
-FROM n8nio/n8n:latest
+# Use the full Alpine variant — includes /bin/sh and apk
+FROM n8nio/n8n:1.72.1-alpine
 
+# Set working directory
 WORKDIR /data
 
-# Copy the backup script and make it executable
-COPY --chmod=755 backup.sh /backup.sh
+# Copy backup script and give execute permissions
+COPY backup.sh /backup.sh
+RUN chmod +x /backup.sh
 
-# Start n8n and run backup script in the background using sh
-CMD ["sh", "-c", "/backup.sh & n8n start"]
+# Run n8n and the backup script in parallel
+CMD sh -c "/backup.sh & n8n start"
