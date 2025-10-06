@@ -1,27 +1,25 @@
-# Use the latest stable n8n image (based on Debian 12 - Bookworm)
+# Use the official n8n image (already Debian-based)
 FROM n8nio/n8n:latest
 
-# Switch to root to install additional packages
+# Switch to root so we can install additional tools
 USER root
 
-# Update sources to Bookworm (if still on Buster)
-RUN sed -i 's/buster/bookworm/g' /etc/apt/sources.list && \
-    sed -i 's|security.debian.org|deb.debian.org/debian-security|g' /etc/apt/sources.list
+# Update and install bash + git
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends bash git && \
+    rm -rf /var/lib/apt/lists/*
 
-# Update and install git + bash
-RUN apt-get update && apt-get install -y git bash && rm -rf /var/lib/apt/lists/*
-
-# Set working directory for n8n
+# Set working directory
 WORKDIR /data
 
-# Copy backup script and make executable
+# Copy backup script and make it executable
 COPY backup.sh /backup.sh
 RUN chmod +x /backup.sh
 
-# Switch back to node user
+# Switch back to non-root user
 USER node
 
-# Expose the default n8n port
+# Expose n8n’s default port
 EXPOSE 5678
 
 # Start n8n
