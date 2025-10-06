@@ -1,28 +1,26 @@
-# Pin to a recent n8n; or keep :latest if you prefer
-FROM n8nio/n8n:1.81.4
+# Use a Debian-based n8n image to ensure /bin/sh and apt exist
+FROM n8nio/n8n:1.74.0
 
-# Become root to install packages
+# Switch to root to install tools
 USER root
 
-# Alpine packages (no apt-get here)
-RUN apk add --no-cache \
-      bash git openssh-client ca-certificates \
-  && update-ca-certificates
+# Install bash + git
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends bash git && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy the backup script into PATH
-COPY backup.sh /usr/local/bin/backup.sh
-RUN chmod +x /usr/local/bin/backup.sh && chown node:node /usr/local/bin/backup.sh
+# Create /data directory for backups
+WORKDIR /data
 
-# n8n stores data here in the official image
-ENV N8N_USER_FOLDER=/home/node/.n8n
+# Copy and make backup script executable
+COPY backup.sh /backup.sh
+RUN chmod +x /backup.sh
 
-# Optional: set a default git identity (can be overridden by env)
-RUN git config --global user.name  "n8n render" \
- && git config --global user.email "render@example.local"
-
-# Drop privileges back to the n8n user
+# Switch back to node user for n8n
 USER node
 
-# Start the backup loop in the background, then n8n
-# (JSON form so it works in Docker everywhere)
-CMD ["sh", "-c", "/usr/local/bin/backup.sh & exec n8n start"]
+# Expose port
+EXPOSE 5678
+
+# Run both backup script (in background) and n8n together
+CMD ["bash", "-c", "/backup.sh & n8n start"]
