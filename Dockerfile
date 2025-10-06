@@ -1,14 +1,16 @@
 FROM n8nio/n8n:latest
 
-# Set working directory
+USER root
 WORKDIR /data
-
-# Copy env vars to image (optional)
-ENV N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
 
 # Copy the backup script
 COPY backup.sh /data/backup.sh
 
-# Ensure /bin/bash exists, then run both backup and n8n
-# Use "bash -c" since sh may not be available in the Render build env
-CMD ["/bin/bash", "-c", "chmod +x /data/backup.sh && /data/backup.sh & n8n start"]
+# Make sure the script is executable
+RUN chmod 755 /data/backup.sh
+
+# Switch back to n8n user (very important)
+USER node
+
+# Start n8n and background backup task
+CMD bash -c "/data/backup.sh & n8n start"
