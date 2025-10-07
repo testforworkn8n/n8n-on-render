@@ -16,17 +16,13 @@ GH_API="https://api.github.com/repos/${BACKUP_REPO}"
 AUTH_HEADER="Authorization: Bearer ${BACKUP_GITHUB_TOKEN}"
 mkdir -p "$DATA_DIR"
 
-log() { echo "[$(date -u +%FT%TZ)] $*"; }
-echo "[DEBUG] Backup token length: ${#BACKUP_GITHUB_TOKEN}"
-echo "[DEBUG] Pointer update target: ${GH_API}/contents/backup/LATEST (branch: ${BACKUP_BRANCH})"
-
 # -------- helpers --------
 # PUT file via GitHub Contents API (creates new path each time -> no SHA needed)
 put_new_file() {
   local path="$1"    # e.g. backup/2025-10-07T12-00-00Z.tar.gz
   local msg="$2"     # commit message
   local b64file="$3" # base64 string of the file
-
+  
 curl -sS -X PUT \
   -H "$AUTH_HEADER" \
   -H "Accept: application/vnd.github+json" \
@@ -49,6 +45,9 @@ upsert_text_file() {
   json="{\"message\":\"${msg}\",\"content\":\"${b64}\",\"branch\":\"${BACKUP_BRANCH}\""
   [ -n "$sha" ] && json+=",\"sha\":\"${sha}\""
   json+="}"
+
+log "Updating pointer file backup/LATEST..."
+echo "[DEBUG] Pointer update target: ${GH_API}/contents/backup/LATEST (branch: ${BACKUP_BRANCH})"
 
   resp=$(curl -s -o /tmp/curl_resp.json -w "%{http_code}" \
     -X PUT "${GH_API}/contents/${path}" \
