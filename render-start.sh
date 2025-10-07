@@ -18,6 +18,7 @@ mkdir -p "$DATA_DIR"
 
 log() { echo "[$(date -u +%FT%TZ)] $*"; }
 echo "[DEBUG] Backup token length: ${#BACKUP_GITHUB_TOKEN}"
+echo "[DEBUG] Pointer update target: ${GH_API}/contents/backup/LATEST (branch: ${BACKUP_BRANCH})"
 
 # -------- helpers --------
 # PUT file via GitHub Contents API (creates new path each time -> no SHA needed)
