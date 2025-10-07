@@ -1,1 +1,10 @@
+# n8n configuration
+N8N_USER_FOLDER=/data
+N8N_PROTOCOL=https
+N8N_PORT=5678
+N8N_HOST=n8n-on-render-7n4x.onrender.com
+N8N_ENCRYPTION_KEY=mzLFnq9MzC5kYCey
+GENERIC_TIMEZONE=Europe/Sofia
 
+# Disable telemetry (optional)
+N8N_DIAGNOSTICS_ENABLED=false
