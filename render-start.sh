@@ -13,10 +13,11 @@ BACKUP_INTERVAL_SECONDS="${BACKUP_INTERVAL_SECONDS:-86400}"  # default 24h
 #   BACKUP_BRANCH      (e.g. main)
 
 GH_API="https://api.github.com/repos/${BACKUP_REPO}"
-AUTH_HEADER="Authorization: token ${BACKUP_GITHUB_TOKEN}"
+AUTH_HEADER="Authorization: Bearer ${BACKUP_GITHUB_TOKEN}"
 mkdir -p "$DATA_DIR"
 
 log() { echo "[$(date -u +%FT%TZ)] $*"; }
+echo "[DEBUG] Backup token length: ${#BACKUP_GITHUB_TOKEN}"
 
 # -------- helpers --------
 # PUT file via GitHub Contents API (creates new path each time -> no SHA needed)
@@ -25,11 +26,13 @@ put_new_file() {
   local msg="$2"     # commit message
   local b64file="$3" # base64 string of the file
 
-  curl -sS -X PUT \
-    -H "$AUTH_HEADER" \
-    -H "Content-Type: application/json" \
-    -d "{\"message\":\"${msg}\",\"content\":\"${b64file}\",\"branch\":\"${BACKUP_BRANCH}\"}" \
-    "${GH_API}/contents/${path}" >/dev/null
+curl -sS -X PUT \
+  -H "$AUTH_HEADER" \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  -H "Content-Type: application/json" \
+  -d "{\"message\":\"${msg}\",\"content\":\"${b64file}\",\"branch\":\"${BACKUP_BRANCH}\"}" \
+  "${GH_API}/contents/${path}" >/dev/null
 }
 
 # Upload or update small text file (pointer to latest)
