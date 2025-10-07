@@ -1,2 +1,4 @@
-node_modules/
-.n8n/
+# n8n data and secrets
+data/.n8n/
+*.tar.gz
+.env
