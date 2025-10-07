@@ -44,16 +44,17 @@ upsert_text_file() {
   local content="$3"  # plain text
 
   log "→ Updating pointer file ${path}..."
-  sha=$(curl -s -H "$AUTH_HEADER" "${GH_API}/contents/${path}?ref=${BACKUP_BRANCH}" | jq -r '.sha // empty')
   b64=$(printf "%s" "$content" | base64 -w 0)
 
+  # get SHA if file already exists
+  sha=$(curl -s -H "$AUTH_HEADER" "${GH_API}/contents/${path}?ref=${BACKUP_BRANCH}" | jq -r '.sha // empty')
+
+  # prepare JSON payload
   json="{\"message\":\"${msg}\",\"content\":\"${b64}\",\"branch\":\"${BACKUP_BRANCH}\""
   [ -n "$sha" ] && json+=",\"sha\":\"${sha}\""
   json+="}"
 
-echo "[DEBUG] Pointer update target: ${GH_API}/contents/${path} (branch: ${BACKUP_BRANCH})"
-echo "[DEBUG] Using token: ${BACKUP_GITHUB_TOKEN:0:6}****** (length: ${#BACKUP_GITHUB_TOKEN})"
-
+  # send PUT
   resp=$(curl -s -o /tmp/curl_resp.json -w "%{http_code}" \
     -X PUT "${GH_API}/contents/${path}" \
     -H "$AUTH_HEADER" \
