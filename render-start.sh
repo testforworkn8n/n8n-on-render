@@ -46,8 +46,8 @@ upsert_text_file() {
   [ -n "$sha" ] && json+=",\"sha\":\"${sha}\""
   json+="}"
 
-log "Updating pointer file backup/LATEST..."
-echo "[DEBUG] Pointer update target: ${GH_API}/contents/backup/LATEST (branch: ${BACKUP_BRANCH})"
+echo "[DEBUG] Pointer update target: ${GH_API}/contents/${path} (branch: ${BACKUP_BRANCH})"
+echo "[DEBUG] Using token: ${BACKUP_GITHUB_TOKEN:0:6}****** (length: ${#BACKUP_GITHUB_TOKEN})"
 
   resp=$(curl -s -o /tmp/curl_resp.json -w "%{http_code}" \
     -X PUT "${GH_API}/contents/${path}" \
