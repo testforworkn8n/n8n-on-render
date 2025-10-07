@@ -25,6 +25,20 @@ else
 fi
 echo "----------------------------------------"
 
+# ---------- ADDITIONAL DEEP DIAGNOSTICS ----------
+echo "[DEBUG] (1) Checking token raw bytes and hidden characters..."
+printf "[DEBUG] Token raw length: %d bytes\n" "$(printf %s "$BACKUP_GITHUB_TOKEN" | wc -c)"
+printf "[DEBUG] Token last 10 chars (escaped): %q\n" "${BACKUP_GITHUB_TOKEN: -10}"
+
+echo "----------------------------------------"
+echo "[DEBUG] (2) Testing public GitHub connectivity (no auth)..."
+curl -s https://api.github.com/meta | grep -A1 hooks || echo "[WARN] Public GitHub meta check failed!"
+
+echo "----------------------------------------"
+echo "[DEBUG] (3) Verbose GitHub API call test..."
+curl -v -H "$AUTH_HEADER" -H "Accept: application/vnd.github+json" "$GH_API" 2>&1 | tee /tmp/debug_curl.log
+echo "----------------------------------------"
+
 # ---------- DEBUG: TEST AUTH REQUEST ----------
 echo "[DEBUG] Testing GitHub authentication..."
 auth_test_resp=$(curl -s -o /tmp/auth_test.json -w "%{http_code}" \
