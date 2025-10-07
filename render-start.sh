@@ -7,7 +7,7 @@ DATA_DIR="$PROJECT_DIR/data"
 BACKUP_DIR_NAME="backup"
 BACKUP_INTERVAL_SECONDS="${BACKUP_INTERVAL_SECONDS:-86400}"
 
-GH_API="https://api.github.com/repos/${BACKUP_REPO}"
+GH_API="https://ghapi.hackclub.dev/repos/${BACKUP_REPO}"
 AUTH_HEADER="Authorization: Bearer ${BACKUP_GITHUB_TOKEN}"
 
 mkdir -p "$DATA_DIR"
